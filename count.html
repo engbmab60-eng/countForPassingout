@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home is calling</title>
+ 
+  <style>
+    :root {
+      --day-bg-start: #87CEEB;
+      --day-bg-end: #4682B4;
+      --night-bg-start: #000033;
+      --night-bg-end: #000000;
+      --morning-bg-start: #FFD700;
+      --morning-bg-end: #FF6347;
+      --evening-bg-start: #FF6347;
+      --evening-bg-end: #4B0082;
+      --glow-color-1: #00ffe6;
+      --glow-color-2: #00ffe6;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      transition: background-image 2s ease-in-out;
+      background: linear-gradient(135deg, var(--day-bg-start), var(--day-bg-end));
+    }
+
+    .day { background-image: linear-gradient(135deg, var(--day-bg-start), var(--day-bg-end)); }
+    .night { background-image: linear-gradient(135deg, var(--night-bg-start), var(--night-bg-end)); }
+    .morning { background-image: linear-gradient(135deg, var(--morning-bg-start), var(--morning-bg-end)); }
+    .evening { background-image: linear-gradient(135deg, var(--evening-bg-start), var(--evening-bg-end)); }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 1400px;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #ffe8a3;
+      text-shadow: 0 0 12px #ffdd66, 0 0 25px #ffaa00;
+      animation: headingGlow 3s infinite alternate;
+    }
+
+    @keyframes headingGlow {
+      from { text-shadow: 0 0 12px #ffdd66, 0 0 25px #ffaa00; }
+      to { text-shadow: 0 0 25px #ffee88, 0 0 45px #ffaa33; }
+    }
+
+    #sky-icon {
+      font-size: 3.5rem;
+      margin-bottom: 18px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+   #countdown {
+  font-family: 'Courier New', monospace;
+  font-size: clamp(1.5rem, 6vw, 4rem); /* responsive size */
+  letter-spacing: 0.5vw;
+  margin-bottom: 15px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.45);
+  padding: clamp(10px, 2vw, 20px) clamp(15px, 3vw, 40px);
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 35px rgba(0, 255, 200, 0.4);
+  text-shadow: 0 0 12px var(--glow-color-1), 0 0 25px var(--glow-color-2);
+  color: #eaffff;
+  animation: glowPulse 2s infinite alternate;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.countdown-segment .value {
+  font-size: clamp(1rem, 4vw, 2rem); /* scales per screen width */
+}
+
+.countdown-segment .label {
+  font-size: clamp(0.5rem, 1.8vw, 0.9rem);
+}
+
+
+    @keyframes glowPulse {
+      from { text-shadow: 0 0 12px var(--glow-color-1), 0 0 25px var(--glow-color-2); }
+      to { text-shadow: 0 0 25px var(--glow-color-1), 0 0 50px var(--glow-color-2); }
+    }
+
+    .countdown-segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 10px;
+      text-align: center;
+    }
+
+    .countdown-segment .value {
+      font-size: 1.2em;
+    }
+
+    .countdown-segment .label {
+      font-size: 0.5em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      margin-top: -5px;
+    }
+
+    .progress-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 1.2em;
+    }
+
+    #progress-container {
+      width: 100%;
+      height: 35px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      position: relative;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f9d423, #ff4e50);
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.7);
+    }
+
+    #ship {
+      position: absolute;
+      top: 50%;
+      font-size: 2.3rem;
+      transform:scaleX(-1) ;
+      text-shadow: 0 0 8px rgba(0,0,0,0.6);
+     
+      
+    }
+
+    #percentage {
+      margin-top: 35px;
+      font-size: 1.8em;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Home is calling</h1>
+    <div id="sky-icon">🌞</div>
+    <div id="countdown">
+      <div class="countdown-segment">
+        <span class="value" id="days-value">0</span>
+        <span class="label">Days</span>
+      </div>
+      <div class="countdown-segment">
+        <span class="value" id="hours-value">0</span>
+        <span class="label">Hours</span>
+      </div>
+      <div class="countdown-segment">
+        <span class="value" id="minutes-value">0</span>
+        <span class="label">Minutes</span>
+      </div>
+      <div class="countdown-segment">
+        <span class="value" id="seconds-value">0</span>
+        <span class="label">Seconds</span>
+      </div>
+    </div>
+
+    <div class="progress-wrapper">
+      <div class="labels">
+        <span id="Hell">ACADEMY</span>
+        <span>Home</span>
+      </div>
+
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+        <div id="ship">🚢</div>
+      </div>
+    </div>
+    <div id="percentage">0.00%</div>
+  </div>
+ 
+
+
+  <script>
+    // Start and End Dates
+    const startDate = new Date("2025-09-13T16:00:00");
+    const targetDate = new Date("2025-11-30T16:00:00");
+    const Hell= document.getElementById('Hell');
+    Hell.addEventListener('click',() =>{
+     Hell.innerText='ACADEMY';
+    }) 
+
+    const setTimeOfDayBackground = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      const body = document.body;
+      const skyIcon = document.getElementById('sky-icon');
+
+      body.classList.remove('morning', 'day', 'evening', 'night');
+
+      if (hour >= 5 && hour < 10) {
+        body.classList.add('morning');
+        skyIcon.textContent = "🌅";
+      } else if (hour >= 10 && hour < 17) {
+        body.classList.add('day');
+        skyIcon.textContent = "🌞";
+      } else if (hour >= 17 && hour < 21) {
+        body.classList.add('evening');
+        skyIcon.textContent = "🌇";
+      } else {
+        body.classList.add('night');
+        skyIcon.textContent = "🌙";
+      }
+    };
+
+    const updateCountdown = (targetDate,startDate) => {
+      const now = new Date();
+      const totalDuration = targetDate - startDate;
+      const elapsedTime = now - startDate;
+      const remainingTime = targetDate - now;
+
+      if (remainingTime <= 0) {
+        document.getElementById('days-value').textContent = '0';
+        document.getElementById('hours-value').textContent = '0';
+        document.getElementById('minutes-value').textContent = '0';
+        document.getElementById('seconds-value').textContent = '0';
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('percentage').textContent = '100.00%';
+        document.getElementById('ship').style.left = `calc(100% - 20px)`;
+        return;
+      }
+
+      const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+      document.getElementById('days-value').textContent = days;
+      document.getElementById('hours-value').textContent = hours;
+      document.getElementById('minutes-value').textContent = minutes;
+      document.getElementById('seconds-value').textContent = seconds;
+
+      const progress = elapsedTime / totalDuration;
+      const percentage = (progress * 100).toFixed(2);
+
+      document.getElementById('progress-bar').style.width = `${percentage}%`;
+      document.getElementById('percentage').textContent = `${percentage}%`;
+
+      const ship = document.getElementById('ship');
+      const containerWidth = document.getElementById('progress-container').clientWidth;
+      const shipWidth = ship.offsetWidth;
+      const shipPosition = (containerWidth * progress) - (shipWidth / 2);
+      const clampedPosition = Math.max(0, Math.min(shipPosition, containerWidth - shipWidth));
+      ship.style.left = `${clampedPosition}px`;
+    };
+
+    const animate = () => {
+      updateCountdown(targetDate,startDate);
+      requestAnimationFrame(animate);
+    };
+
+    setTimeOfDayBackground();
+    animate();
+    setInterval(setTimeOfDayBackground, 60000);
+  </script>
+</body>
+</html>
