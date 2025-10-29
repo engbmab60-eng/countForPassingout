@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Home is calling</title>
  
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --day-bg-start: #87CEEB;
@@ -29,7 +30,7 @@
 
     body {
       margin: 0;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Montserrat', sans-serif; /* Already correctly applied in your CSS */
       color: white;
       display: flex;
       flex-direction: column;
@@ -185,11 +186,16 @@
       font-weight: 700;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
+    
+    /* NEW STYLE: To hide countdown segments when the journey is complete */
+    .countdown-complete .countdown-segment {
+        display: none !important;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Home is calling</h1>
+    <h1 id="main-heading">Home is calling</h1>
     <div id="sky-icon">🌞</div>
     <div id="countdown">
       <div class="countdown-segment">
@@ -212,7 +218,7 @@
 
     <div class="progress-wrapper">
       <div class="labels">
-        <span id="Hell">ACADEMY</span>
+        <span id="start-label">ACADEMY</span>
         <span>Home</span>
       </div>
 
@@ -228,33 +234,73 @@
 
   <script>
     // Start and End Dates
+    // NOTE: The current date is Oct 28, 2025 6:54 PM. The target date below is in the future.
     const startDate = new Date("2025-09-13T16:00:00");
-    const targetDate = new Date("2025-11-30T16:00:00");
-    const Hell= document.getElementById('Hell');
-    Hell.addEventListener('click',() =>{
-     Hell.innerText='ACADEMY';
+    const targetDate = new Date("2025-11-30T16:00:00"); 
+
+    // Get all necessary elements
+    const body = document.body;
+    const skyIcon = document.getElementById('sky-icon');
+    const countdownDiv = document.getElementById('countdown');
+    const mainHeading = document.getElementById('main-heading');
+    const startLabel = document.getElementById('start-label');
+    const progressBar = document.getElementById('progress-bar');
+    const percentageDiv = document.getElementById('percentage');
+    const ship = document.getElementById('ship');
+    const progressContainer = document.getElementById('progress-container');
+
+    // Function to handle the Completed State
+    const handleJourneyComplete = () => {
+        // 1. Update text content
+        mainHeading.textContent = "JOURNEY COMPLETED";
+        startLabel.textContent = "PASSING OUT PARADE";
+        skyIcon.textContent = "🏁";
+
+        // 2. Hide the countdown segments
+        countdownDiv.classList.add('countdown-complete');
+
+        // 3. Finalize progress bar
+        progressBar.style.width = '100%';
+        percentageDiv.textContent = '100.00%';
+        
+        // Calculate the ship's final position (at the very end of the bar)
+        const containerWidth = progressContainer.clientWidth;
+        const shipWidth = ship.offsetWidth;
+        ship.style.left = `${containerWidth - shipWidth}px`; 
+
+        // Stop the animation loop
+        cancelAnimationFrame(animationFrameId);
+    }
+    
+    // Original click listener (updated to use new ID)
+    startLabel.addEventListener('click',() =>{
+     startLabel.innerText='ACADEMY';
     }) 
 
     const setTimeOfDayBackground = () => {
       const now = new Date();
       const hour = now.getHours();
-      const body = document.body;
-      const skyIcon = document.getElementById('sky-icon');
 
       body.classList.remove('morning', 'day', 'evening', 'night');
 
-      if (hour >= 5 && hour < 10) {
-        body.classList.add('morning');
-        skyIcon.textContent = "🌅";
-      } else if (hour >= 10 && hour < 17) {
-        body.classList.add('day');
-        skyIcon.textContent = "🌞";
-      } else if (hour >= 17 && hour < 21) {
-        body.classList.add('evening');
-        skyIcon.textContent = "🌇";
+      // Only set time-of-day background if the journey is not complete
+      if (now < targetDate) {
+          if (hour >= 5 && hour < 10) {
+            body.classList.add('morning');
+            skyIcon.textContent = "🌅";
+          } else if (hour >= 10 && hour < 17) {
+            body.classList.add('day');
+            skyIcon.textContent = "🌞";
+          } else if (hour >= 17 && hour < 21) {
+            body.classList.add('evening');
+            skyIcon.textContent = "🌇";
+          } else {
+            body.classList.add('night');
+            skyIcon.textContent = "🌙";
+          }
       } else {
-        body.classList.add('night');
-        skyIcon.textContent = "🌙";
+           // Ensure it stays on a pleasing background after completion, e.g., 'day'
+           body.classList.add('day'); 
       }
     };
 
@@ -265,13 +311,7 @@
       const remainingTime = targetDate - now;
 
       if (remainingTime <= 0) {
-        document.getElementById('days-value').textContent = '0';
-        document.getElementById('hours-value').textContent = '0';
-        document.getElementById('minutes-value').textContent = '0';
-        document.getElementById('seconds-value').textContent = '0';
-        document.getElementById('progress-bar').style.width = '100%';
-        document.getElementById('percentage').textContent = '100.00%';
-        document.getElementById('ship').style.left = `calc(100% - 20px)`;
+        handleJourneyComplete();
         return;
       }
 
@@ -288,25 +328,31 @@
       const progress = elapsedTime / totalDuration;
       const percentage = (progress * 100).toFixed(2);
 
-      document.getElementById('progress-bar').style.width = `${percentage}%`;
-      document.getElementById('percentage').textContent = `${percentage}%`;
+      progressBar.style.width = `${percentage}%`;
+      percentageDiv.textContent = `${percentage}%`;
 
-      const ship = document.getElementById('ship');
-      const containerWidth = document.getElementById('progress-container').clientWidth;
+      const containerWidth = progressContainer.clientWidth;
       const shipWidth = ship.offsetWidth;
+      // Calculate position relative to the start of the container
       const shipPosition = (containerWidth * progress) - (shipWidth / 2);
+      // Clamp position to stay within the bounds of the container
       const clampedPosition = Math.max(0, Math.min(shipPosition, containerWidth - shipWidth));
       ship.style.left = `${clampedPosition}px`;
     };
+    
+    let animationFrameId;
 
     const animate = () => {
       updateCountdown(targetDate,startDate);
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     setTimeOfDayBackground();
     animate();
-    setInterval(setTimeOfDayBackground, 60000);
+    // Only set up interval for background if journey isn't complete (though updateCountdown handles the text/icon)
+    if (new Date() < targetDate) {
+        setInterval(setTimeOfDayBackground, 60000);
+    }
   </script>
 </body>
 </html>
